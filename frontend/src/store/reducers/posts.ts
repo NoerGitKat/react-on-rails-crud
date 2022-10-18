@@ -1,16 +1,18 @@
 import { ActionReducerMapBuilder, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import produce from "immer";
 import { RootState } from "..";
+import { fetchPosts } from "../../features/posts/postsAPI";
 
-interface IInitialPostsState {
-  posts: {
-    id: number;
-    title: string;
-    body: string;
-    created_at?: string;
-    updated_at?: string;
-    url: string;
-  }[];
+export interface IPost {
+  id: number;
+  title: string;
+  body: string;
+  created_at?: string;
+  updated_at?: string;
+  url: string;
+}
+export interface IInitialPostsState {
+  posts: IPost[];
   status: string;
 }
 
@@ -57,14 +59,15 @@ const postsSlice = createSlice({
           draftState.status = Status.Loading;
         });
       })
-      .addCase(fetchPostsAsync.fulfilled, (state) => {
+      .addCase(fetchPostsAsync.fulfilled, (state, action) => {
         return produce(state, (draftState) => {
+          draftState.posts = action.payload;
           draftState.status = Status.UpToDate;
         });
       })
-      .addCase(fetchPostsAsync.error, (state) => {
+      .addCase(fetchPostsAsync.rejected, (state) => {
         return produce(state, (draftState) => {
-          draftState.status = Status.Error;
+          draftState.status = Status.UpToDate;
         });
       });
   },
