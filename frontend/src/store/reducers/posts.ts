@@ -1,7 +1,8 @@
 import { ActionReducerMapBuilder, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import produce from "immer";
 import { RootState } from "..";
-import { fetchPosts } from "../../features/posts/postsAPI";
+import { createPost, fetchPosts } from "../../features/posts/postsAPI";
+import { IFormData } from "../../hooks/useForm";
 
 export interface IPost {
   id: number;
@@ -48,6 +49,16 @@ export const fetchPostsAsync = createAsyncThunk("posts/fetchPosts", async () => 
   }
 });
 
+export const createPostAsync = createAsyncThunk("posts/createPost", async (formData: IFormData) => {
+  try {
+    const response = await createPost(formData);
+    return response;
+  } catch (error) {
+    console.error("Error creating post!", error);
+    return error;
+  }
+});
+
 const postsSlice = createSlice({
   name: "Posts Slice",
   initialState,
@@ -67,7 +78,23 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPostsAsync.rejected, (state) => {
         return produce(state, (draftState) => {
+          draftState.status = Status.Error;
+        });
+      })
+      .addCase(createPostAsync.pending, (state) => {
+        return produce(state, (draftState) => {
+          draftState.status = Status.Loading;
+        });
+      })
+      .addCase(createPostAsync.fulfilled, (state, action) => {
+        return produce(state, (draftState) => {
+          draftState.posts.push(action.payload);
           draftState.status = Status.UpToDate;
+        });
+      })
+      .addCase(createPostAsync.rejected, (state) => {
+        return produce(state, (draftState) => {
+          draftState.status = Status.Error;
         });
       });
   },

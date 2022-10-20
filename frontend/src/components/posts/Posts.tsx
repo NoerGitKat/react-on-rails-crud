@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchPostsAsync, selectPosts, selectStatus, Status } from "../../store/reducers/posts";
+import PostForm from "./PostForm";
 import SinglePost from "./SinglePost";
 
 interface IPostsProps {}
@@ -26,7 +27,7 @@ const Posts: React.FC<IPostsProps> = (props) => {
       <article className="card">
         <section className="card-body">
           <h3>{status}</h3>
-          {/* Form goes here */}
+          <PostForm />
           {posts &&
             posts.length > 0 &&
             posts.map(function renderPost(post) {
